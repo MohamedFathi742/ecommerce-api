@@ -13,10 +13,27 @@ export class UsersService {
   ) {}
 
   async create(createUserDto: CreateUserDto) {
-    const { name, email, password } = createUserDto;
+    const { name, email, password, role, isActive } = createUserDto;
     const hashed = await bcrypt.hash(password, 10);
-    const user = this.userRepo.create({ name, email, password: hashed });
-    return this.userRepo.save(user);
+
+    let user = await this.userRepo.findOne({ where: { email } });
+
+    if (user) {
+      user.name = name;
+      user.password = hashed;
+      user.role = role || user.role;
+      user.isActive = isActive ?? user.isActive;
+    } else {
+      user = this.userRepo.create({
+        name,
+        email,
+        password: hashed,
+        role: role || 'user',
+        isActive: isActive ?? true,
+      });
+    }
+
+    return await this.userRepo.save(user);
   }
 
   async findAll() {
@@ -49,7 +66,7 @@ export class UsersService {
     if (!user) {
       throw new Error('User not found');
     }
-const updatedUser = Object.assign(user, updateUserDto);
+    const updatedUser = Object.assign(user, updateUserDto);
     return await this.userRepo.save(updatedUser);
   }
 

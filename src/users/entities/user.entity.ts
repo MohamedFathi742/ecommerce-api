@@ -12,7 +12,7 @@ export class User {
   password: string;
   @Column({ default: true })
   isActive: boolean;
-  @Column({ default: 'user' })
+  @Column()
   role: string;
   @OneToMany(() => Order, (order) => order.user)
   orders: Order[];

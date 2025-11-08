@@ -6,10 +6,14 @@ import {
   Patch,
   Param,
   Delete,
+  UseGuards,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { RolesGuard } from 'src/auth/roles.guard';
+import { Roles } from 'src/auth/roles.decorator';
 
 @Controller('users')
 export class UsersController {
@@ -42,7 +46,8 @@ export class UsersController {
   async findOne(@Param('id') id: string) {
     return await this.usersService.findOne(id);
   }
-
+@UseGuards(JwtAuthGuard,RolesGuard)
+@Roles('admin')
   @Patch(':id/toggle-active')
   async ontoggle(@Param('id') id: string) {
     return await this.usersService.toggleActive(id);
